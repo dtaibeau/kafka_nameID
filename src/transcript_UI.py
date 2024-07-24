@@ -9,7 +9,7 @@ class Paragraph(BaseModel):
     content: str
 
 # split into paragraphs
-def split_transcript(transcript):
+def split_transcript(content : Paragraph):
     paragraphs = transcript.split('\n\n')
     return [Paragraph(content=p) for p in paragraphs if p.strip()]
 
