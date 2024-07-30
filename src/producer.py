@@ -1,9 +1,12 @@
 import streamlit as st
-from kafka import KafkaProducer, KafkaConsumer
+from kafka import KafkaProducer
 from pydantic import BaseModel
 import json
 from youtube_transcript_api import YouTubeTranscriptApi
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 # paragraph pydantic class
 class Paragraph(BaseModel):
