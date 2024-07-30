@@ -1,30 +1,42 @@
 import streamlit as st
-from kafka import KafkaProducer
+from kafka import KafkaProducer, KafkaConsumer
 from pydantic import BaseModel
 import json
 from youtube_transcript_api import YouTubeTranscriptApi
 
-# pydantic class
+
+# paragraph pydantic class
 class Paragraph(BaseModel):
     content: str
+
 
 # split into paragraphs
 def split_transcript(content : Paragraph):
     paragraphs = transcript.split('\n\n')
     return [Paragraph(content=p) for p in paragraphs if p.strip()]
 
-# kafka producer
-producer = KafkaProducer(
+
+# kafka producer for paragraphs
+paragraph_producer = KafkaProducer(
     bootstrap_servers='localhost:9092',
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-# fetch transcrpt from yt url
+
+# fetch yt url transcript
 def fetch_youtube_transcript(video_url):
     video_id = video_url.split("v=")[1]
     transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
     transcript_text = " ".join([item['text'] for item in transcript_list])
     return transcript_text
+
+
+# kafka producer for names
+name_producer = KafkaProducer(
+    bootstrap_servers='localhost:9092',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
+
 
 # streamlit setup
 st.title('Transcript Input Service')
@@ -54,5 +66,5 @@ if transcript and st.button('Send to Kafka'):
     paragraphs = split_transcript(transcript)
     for paragraph in paragraphs:
         serialized_paragraph = paragraph.dict()  # serialize w/ pydantic
-        producer.send('paragraphs', value=serialized_paragraph)
+        paragraph_producer.send('paragraphs', value=serialized_paragraph)
     st.success('Transcript sent to Kafka!')
