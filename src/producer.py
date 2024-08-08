@@ -1,29 +1,45 @@
+import asyncio
 import json
 
 import streamlit as st
+from aiokafka import AIOKafkaProducer
 from dotenv import load_dotenv
-from kafka import KafkaProducer
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from youtube_transcript_api import YouTubeTranscriptApi
 
+# api key
 load_dotenv()
 
 
-# paragraph pydantic class
+# pydantic classes
 class Paragraph(BaseModel):
     content: str
 
 
+class BasicEnrichment(BaseModel):
+    name: str
+    summary: str
+
+
 # split into paragraphs
-def split_transcript(content: Paragraph):
-    paragraphs = transcript.split("\n\n")
+def split_transcript(content):
+    paragraphs = content.split("\n\n")
     return [Paragraph(content=p) for p in paragraphs if p.strip()]
 
 
 # kafka producer for paragraphs
-paragraph_producer = KafkaProducer(
-    bootstrap_servers="localhost:9092", value_serializer=lambda v: json.dumps(v).encode("utf-8")
-)
+async def send_paragraphs_to_kafka(paragraphs):
+    producer = AIOKafkaProducer(
+        bootstrap_servers="localhost:9092", value_serializer=lambda v: json.dumps(v).encode("utf-8")
+    )
+    await producer.start()
+    try:
+        for paragraph in paragraphs:
+            serialized_paragraph = paragraph.dict()
+            await producer.send("paragraphs", value=serialized_paragraph)
+        await producer.flush()
+    finally:
+        await producer.stop()
 
 
 # fetch yt url transcript
@@ -32,12 +48,6 @@ def fetch_youtube_transcript(video_url):
     transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
     transcript_text = " ".join([item["text"] for item in transcript_list])
     return transcript_text
-
-
-# kafka producer for names
-name_producer = KafkaProducer(
-    bootstrap_servers="localhost:9092", value_serializer=lambda v: json.dumps(v).encode("utf-8")
-)
 
 
 # streamlit setup
@@ -63,7 +73,5 @@ elif input_option == "YouTube URL":
 
 if transcript and st.button("Send to Kafka"):
     paragraphs = split_transcript(transcript)
-    for paragraph in paragraphs:
-        serialized_paragraph = paragraph.dict()  # serialize w/ pydantic
-        paragraph_producer.send("paragraphs", value=serialized_paragraph)
+    asyncio.run(send_paragraphs_to_kafka(paragraphs))
     st.success("Transcript sent to Kafka!")
