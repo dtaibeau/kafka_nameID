@@ -1,19 +1,19 @@
-### Kafka-Powered Name Identification and Enrichment System
+# Kafka-Powered Name Identification and Enrichment System
 This project is a distributed system that leverages Kafka, Streamlit, Pydantic, and Cohere via Lamgchain to process and enrich text data.
 
-# Features
+## Features
 * Consume and produce messages using Kafka for real-time processing.
 * Identify proper names within paragraphs of text.
 * Disambiguate identified names using context.
 * Fetch and enrich names with detailed summaries using web search.
 
-# Requirements
+## Requirements
 - Streamlit for the user interface.
 - aiokafka for Kafka integration.
 - LangChain and Cohere + web-search connector for name identification and enrichment.
 - Pydantic for data validation.
 
-# Installation
+## Installation
 Clone the repository:
 
 ```sh
@@ -33,14 +33,14 @@ Install the dependencies:
 poetry install
 ```
 
-# Usage
+## Usage
 Activate the virtual environment:
 
 ```sh
 poetry shell
 ```
 
-# Starting Kafka and Zookeeper
+## Starting Kafka and Zookeeper
 Ensure Kafka and Zookeeper are running, either locally or via Docker.
 
 Run the Streamlit app:
@@ -50,17 +50,17 @@ streamlit run src/app.py
 
 Open your web browser and go to http://localhost:8501
 
-# Running the Consumer and Producer Services
+## Running the Consumer and Producer Services
 ```sh
 poetry run python src/consumer.py
 ```
 
-# Using the App
+## Using the App
 - Input a text paragraph into the provided field.
 - Click the "Process Text" button.
 - View the enriched names and their summaries on the app interface.
 
-# Project Structure
+## Project Structure
 
 ```plaintext
 ├── README.md                # README file
@@ -73,7 +73,7 @@ poetry run python src/consumer.py
 │   ├── producer.py          # Script for Kafka producer service
 ```
 
-# Future Updates
+## Future Updates
 - Outputting enriched name w/ summary directly to Streamlit app rather than console
 - Getting web-search tool to work more consistently.... :')
 - Additional features and improvements based on user feedback!!!
