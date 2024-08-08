@@ -5,7 +5,7 @@ This project is a distributed system that leverages Kafka, Streamlit, Pydantic, 
 * Consume and produce messages using Kafka for real-time processing.
 * Identify proper names within paragraphs of text.
 * Disambiguate identified names using context.
-* Fetch and enrich names with detailed summaries using web search.
+* Fetch and enrich names with detailed and up-to-date summaries using web search.
 
 ## Requirements
 - Streamlit for the user interface.
@@ -43,22 +43,32 @@ poetry shell
 ## Starting Kafka and Zookeeper
 Ensure Kafka and Zookeeper are running, either locally or via Docker.
 
-Run the Streamlit app:
+Commands that might be useful:
 ```sh
-streamlit run src/app.py
+# list kafka topics
+/usr/bin/kafka-topics --list --bootstrap-server localhost:9092
+
+# see if docker is running
+docker ps
 ```
 
-Open your web browser and go to http://localhost:8501
-
-## Running the Consumer and Producer Services
+Run the consumer.py
 ```sh
 poetry run python src/consumer.py
 ```
 
+Run the Streamlit app:
+```sh
+poetry run streamlit run src/producer.py
+```
+
+Open your web browser and go to http://localhost:8501
+
 ## Using the App
-- Input a text paragraph into the provided field.
-- Click the "Process Text" button.
-- View the enriched names and their summaries on the app interface.
+- Input a text paragraph, youtube url, or file into the provided field in the Streamlit window.
+- Click return or enter on your keyboard to start the process.
+- Click "Send to Kafka" button to send the paragraphs to Kafka.
+- Watch the name enrichment process from the consumer.py's terminal on your IDE.
 
 ## Project Structure
 
@@ -68,6 +78,7 @@ poetry run python src/consumer.py
 ├── poetry.lock              # Poetry lock file
 ├── .env                     # Environment variables file
 ├── .gitignore               # Git ignore file
+├── docker-compose.yml       # Docker compose file
 ├── src/                     # Source files/packages
 │   ├── consumer.py          # Script for Kafka consumer service
 │   ├── producer.py          # Script for Kafka producer service
